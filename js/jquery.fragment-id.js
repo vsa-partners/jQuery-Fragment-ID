@@ -8,8 +8,10 @@
  * By: Erik Vorhes (Thanks to Jeremy Kahn (jeremyckahn@gmail.com) for helping me think through this.)
  *
  *
- * Tested in Chrome, Firefox, Safari, IE 7 and 8.
+ * Tested in Chrome, Firefox, Safari, IE 7 and 8.  Who knows, it may even work in IE 6.
  * 
+ * BASIC USAGE
+ * =================================================
  * Usage:  Somewhere in `$.ready()`, call `$.gotoFrag()` with your options, detailed below.
  * When the page is opened with the proper URL hash string format, the page will scroll to the
  * element specified by the jQuery selector string.	 Here's the format:
@@ -19,24 +21,45 @@
  *
  * Parameters!
  * 
- * @param {Object} options This is the object containing the options to set
+ * @param {Object} options This is the object containing the options to set:
  *	  @param {Number} duration How long the scrolling animation runs for
  *	  @param {Function} complete The callback function that is called when the animation completes.	 It gets the jQuery object for the targeted element in the hash string as the first parameter
+ *    @param {Function} onChangeTarget This function is called on the target that `$.gotoFrag()` was last called upon.  Handy for removing any CSS changes that were applied to the old target.  It gets the `oldTarget` jQuery object for the first parameter, and the `newEl` jQuery object for the second parameter.
  *
- * @example
+ * @codestart
  *
- *	$(function() {
- *		$.gotoFrag({
- *		  'duration': 2500,
- *		  'complete': function (el) {
- *			 el.css({
- *			   'background' : '#ff8'
- *			 })
- *		  }
- *		});
- *	});
+ *  $(function() {
+ *    $.gotoFrag({
+ *      'duration': 2500,
+ *      'complete': function (el) {
+ *         el.css({
+ *           'background' : '#ff8'
+ *         })
+ *      },
+ *      'onChangeTarget': function (oldEl, newEl) {
+ *         oldEl.css({
+ *          'background' : ''
+ *      });
+ *    });
+ *  });
  *
+ * @codeend
  * Yay!	 It's like magic!
+ * 
+ * ADVANCED USAGE
+ * =================================================
+ * This plugin automagically integrates with Ben Alman's super handy jQuery Hashchange plugin (http://benalman.com/projects/jquery-hashchange-plugin/).
+ * If present, you can configure `$.gotoFrag` to run onHashchange by calling...
+ * 
+ * @codestart
+ * 
+ *	$(function() {
+ *	  $.gotoFrag.configHashchange({
+ *      // exact same parameters as $.gotoFrag()
+ *    });
+ *  });
+ * 
+ * @codeend
  */
 (function ($) {
 	
@@ -102,7 +125,12 @@
 	
 	$.gotoFrag.configHashchange = function ( options ) {
 		hashchangeOptions = $.extend( (options || {}), defaults );
-		$(window).hashchange();
+		
+		if (!!$.fn.hashchange) {
+			$(window).hashchange();
+		} else {
+			throw 'Hashchange plugin is not present, cannot call $.gotoFrag.configHashchange.';
+		}
 	};
 
 	// Detect to see if Ben Alman's jQuery Hashchange plugin is present.
