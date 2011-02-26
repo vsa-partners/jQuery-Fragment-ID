@@ -4,27 +4,30 @@
  * An attempt to implement http://simonstl.com/articles/cssFragID.html.
  * It will scroll to http://example.com/#css(.class :nth-child(2)) or whatever 
  * jQuery selector you include within "#css()".
- * Note: this will evolve very much. Right now it's pretty fragile!
- * By: Erik Vorhes (Thanks to Jeremy Kahn (jeremyckahn@gmail.com) for helping me think through this.)
+ * By: Erik Vorhes and Jeremy Kahn (jeremyckahn@gmail.com)
  *
  *
  * Tested in Chrome, Firefox, Safari, IE 7 and 8.  Who knows, it may even work in IE 6.
+ * Developed with jQuery 1.5, but should be compatible with 1.4 and probably even earlier versions.
  * 
  * BASIC USAGE
  * =================================================
- * Usage:  Somewhere in `$.ready()`, call `$.gotoFrag()` with your options, detailed below.
- * When the page is opened with the proper URL hash string format, the page will scroll to the
- * element specified by the jQuery selector string.	 Here's the format:
+ * Usage:  After the DOM has loaded, call `$.gotoFrag()` with your options, detailed below.
+ * The page will scroll to the element specified by the jQuery selector string in `location.hash`.
+ * This is most effective when called in the `$.ready()` jQuery function, but you can call it whenever you like.
+ * Here's the hash format:
  * 
- * http://example.com/#css(_selector_)
- *	   - Where _selector_ is the jQuery selector string
+ * http://example.com/#css(_SELECTOR_)
+ *	   - Where _SELECTOR_ is the jQuery selector string
  *
- * Parameters!
+ * API:
+ *
+ * `$.gotoFrag( options )`
  * 
- * @param {Object} options This is the object containing the options to set:
+ * @param {Object} options This is the object containing the options to set the following:
  *	  @param {Number} duration How long the scrolling animation runs for
- *	  @param {Function} complete The callback function that is called when the animation completes.	 It gets the jQuery object for the targeted element in the hash string as the first parameter
- *    @param {Function} onChangeTarget This function is called on the target that `$.gotoFrag()` was last called upon.  Handy for removing any CSS changes that were applied to the old target.  It gets the `oldTarget` jQuery object for the first parameter, and the `newEl` jQuery object for the second parameter.
+ *	  @param {Function} complete The callback function that is called when the animation completes.	 It gets the jQuery object for the element targeted by the hash selector as the first parameter
+ *    @param {Function} onChangeTarget This function is called if `$.gotoFrag()` was called at least once before.  Handy for removing any CSS changes that were applied to the old target.  It gets the `oldTarget` jQuery object for the first parameter, and the `newTarget` jQuery object for the second parameter.
  *
  * @codestart
  *
@@ -36,7 +39,7 @@
  *           'background' : '#ff8'
  *         })
  *      },
- *      'onChangeTarget': function (oldEl, newEl) {
+ *      'onChangeTarget': function (oldTarget, newTarget) {
  *         oldEl.css({
  *          'background' : ''
  *      });
@@ -60,6 +63,8 @@
  *  });
  * 
  * @codeend
+ * 
+ * See the API documentation for details on what paramters to pass in - they are exactly the same. All `$.gotoFrag.configHashchange()` does is call  `$.gotoFrag()` when `location.hash` changes.
  */
 (function ($) {
 	
@@ -142,5 +147,4 @@
 		});
 	}
 	
-
 }(jQuery));
