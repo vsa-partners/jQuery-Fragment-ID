@@ -2,8 +2,7 @@
 
 /*
  * An attempt to implement http://simonstl.com/articles/cssFragID.html.
- * It will scroll to http://example.com/#css(.class :nth-child(2)) or whatever 
- * jQuery selector you include within "#css()".
+ * It will scroll to http://example.com/#css(.class :nth-child(2)) or whatever jQuery selector you include within "#css()".
  * By: Erik Vorhes and Jeremy Kahn (jeremyckahn@gmail.com)
  *
  *
@@ -52,7 +51,7 @@
  * ADVANCED USAGE
  * =================================================
  * This plugin automagically integrates with Ben Alman's super handy jQuery Hashchange plugin (http://benalman.com/projects/jquery-hashchange-plugin/).
- * If present, you can configure `$.gotoFrag` to run onHashchange by calling...
+ * If Hashchange is present, just sit back and enjoy the scrolling.  To customize the effect, you can configure the call to `$.gotoFrag` by calling...
  * 
  * @codestart
  * 
@@ -143,6 +142,10 @@
 	if (!!$.fn.hashchange) {
 		// Bind to the `hashchange` event
 		$(window).hashchange(function (ev) {
+			$.gotoFrag(hashchangeOptions);
+		});
+		
+		$(function () {
 			$.gotoFrag(hashchangeOptions);
 		});
 	}
