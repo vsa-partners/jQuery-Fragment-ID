@@ -75,55 +75,84 @@
 	};
 
 	$.gotoFrag = function gotoFrag(options) {
-		var hash = decodeURIComponent(window.location.hash).match(/^#css\((.+)\)$/i),
+		var hash/* = decodeURIComponent(window.location.hash).match(/^#css\((.+)\)$/i)*/,
 			targetEl, 
-			targetClass;
-
+			targetClass,
+			selector,
+			isSelector;
+			
 		// Copy any options that were not defined in `options` from `defaults`.
 		options = $.extend( (options || {}), defaults );
 		targetClass = options.targetClassName || 'target';
+			
+		//hash = decodeURIComponent(window.location.hash).match(/^#css\((.+)\)$/i);
+		hash = decodeURIComponent(window.location.hash);
+		
+		if (hash.length > 0) {
+			selector = hash.match(/^#css\((.+)\)$/i);
 
-		if (hash && hash[1]) {
-			targetEl = $(hash[1]).first();
-
-			if ( targetEl.length !== 0 ) {
-				if (options.onChangeTarget && lastSelectedElement) {
-					fakeEl.stop();
-					options.onChangeTarget(lastSelectedElement, targetEl);
-				}
-				
-				lastSelectedElement = targetEl;
-
-				fakeEl = $('<div>');
-				// It makes more semantic sense to animate the `top` property, but apparently that CSS
-				// property doesn't work the same as `width` in detached DOM nodes.
-				fakeEl.css({
-					'width': $(window).scrollTop()
-				}).animate({
-					'width': targetEl.offset().top
-				}, {
-					'duration': options.duration,
-					'step': function () {
-						// You need to set the scrollTop property for both the body and documentElement
-						// for this to work cross-browser, SWEET
-						//document.documentElement.scrollTop = document.body.scrollTop = fakeEl.css('width').replace(/px$/, '');
-						$(window).scrollTop(fakeEl.css('width').replace(/px$/, ''));
-					},
-					'complete': function () {
-						targetEl.addClass(targetClass);
-
-						if (options.complete) {
-							options.complete(targetEl);
-						}
-					}
-				});
-				
-				if (parseInt($(window).scrollTop(), 10) === parseInt(targetEl.offset().top, 10)) {
-					fakeEl.stop(true, true);
-				}
+			if (selector) {
+				isSelector = true;
+				selector = selector[1];
 			}
-
+		} else {
+			return;
 		}
+		
+		if (isSelector) {
+			targetEl = $(selector).first();
+		} else {
+			$('a[name]').each(function (index, el) {
+				el = $(el);
+				
+				if (targetEl) {
+					// A target was found, so just quit out of the `each`.
+					return false;
+				}
+				
+				if (el.attr('name') === hash.substr(1)) {
+					targetEl = el;
+				}
+			});
+		}
+
+		if ( targetEl && targetEl.length !== 0 ) {
+			if (options.onChangeTarget && lastSelectedElement) {
+				fakeEl.stop();
+				options.onChangeTarget(lastSelectedElement, targetEl);
+			}
+			
+			lastSelectedElement = targetEl;
+
+			fakeEl = $('<div>');
+			// It makes more semantic sense to animate the `top` property, but apparently that CSS
+			// property doesn't work the same as `width` in detached DOM nodes.
+			fakeEl.css({
+				'width': $(window).scrollTop()
+			}).animate({
+				'width': targetEl.offset().top
+			}, {
+				'duration': options.duration,
+				'step': function () {
+					// You need to set the scrollTop property for both the body and documentElement
+					// for this to work cross-browser, SWEET
+					//document.documentElement.scrollTop = document.body.scrollTop = fakeEl.css('width').replace(/px$/, '');
+					$(window).scrollTop(fakeEl.css('width').replace(/px$/, ''));
+				},
+				'complete': function () {
+					targetEl.addClass(targetClass);
+
+					if (options.complete) {
+						options.complete(targetEl);
+					}
+				}
+			});
+			
+			if (parseInt($(window).scrollTop(), 10) === parseInt(targetEl.offset().top, 10)) {
+				fakeEl.stop(true, true);
+			}
+		}
+
 		return this;
 	};
 	
